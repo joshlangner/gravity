@@ -1,0 +1,21 @@
+.idea
+*.iml
+.classpath
+.project
+.settings
+*.sublime-project
+*.sublime-workspace
+*.todo
+node_modules
+bower_components
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db

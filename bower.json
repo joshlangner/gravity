@@ -1,0 +1,23 @@
+{
+	"name": "gravity",
+	"description": "a next-gen ux framework",
+	"private": true,
+	"version": "0.0.1",
+	"keywords": [
+		"js",
+		"template-engine",
+		"front-end",
+		"framework",
+		"web"
+	],
+  	"homepage": "https://github.com/joshlangner/gravity",
+	"main": [
+		"gravity.js"
+	],
+	"ignore": [
+		"/.*"
+	],
+	"dependencies": {
+		"ejspeed": "https://github.com/joshlangner/ejspeed.git#master"
+	}
+}
