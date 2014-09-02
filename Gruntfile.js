@@ -1,5 +1,283 @@
 'use strict';
 module.exports = function (grunt) {
+
+	// Define the configuration for all the tasks
+	grunt.initConfig({
+
+		// Project settings
+		config: {
+			// Configurable paths
+			lib: 'bower_components', // lib dir
+			docs: 'docs',
+			src: 'src',
+			docs_server: 'docs_server' // docs server
+		},
+
+		// Watches files for changes and runs tasks based on the changed files
+		watch: {
+			js: {
+				files: [
+					'<%= config.docs %>/static/js/{,*/}*.js'
+				],
+				tasks: [
+					'copy:docs_js',
+					'concat:docs_js'
+				],
+				options: {
+					livereload: 35728
+				}
+			},
+
+			docs: {
+				files: [
+					'<%= config.docs %>/static/js/{,*/}*.js',
+					'<%= config.docs %>/{,*/}*',
+					'<%= config.docs %>/pages/**',
+					'<%= config.docs %>/static/images/{,*/}*',
+					'<%= config.docs %>/static/fonts/{,*/}*'
+				],
+				tasks: [
+					'generateSitemap',
+					'copy:docs'
+				],
+				options: {
+					livereload: 35728
+				}
+			},
+
+			less: {
+				files: [
+					'<%= config.docs %>/static/less/**/{,*/}*.less',
+					'<%= config.src %>/less/{,*/}*.less'
+				],
+				tasks: [
+					'less:docs'
+				],
+				options: {
+					livereload: 35728
+				}
+			},
+
+			livereload: {
+				options: {
+					livereload: '<%= connect.options.livereload %>'
+				},
+				files: [
+					'<%= config.docs_server %>/{,*/}*.html',
+					'<%= config.docs_server %>/static/css/{,*/}*.css',
+					'<%= config.docs_server %>/static/js/{,*/}*.js',
+					'<%= config.docs_server %>/static/images/{,*/}*',
+					'<%= config.docs_server %>/static/fonts/{,*/}*'
+				]
+			}
+
+		},
+
+		// The actual grunt server settings
+		connect: {
+			options: {
+				port: 9008,
+				livereload: 35728, // changed from default of 35729 for dev
+				// Change this to '0.0.0.0' to access the server from outside
+				hostname: 'localhost'
+			},
+			livereload: {
+				options: {
+					open: true,
+					base: [
+						'<%= config.docs_server %>'
+					]
+				}
+			}
+		},
+
+		// Empties folders to start fresh
+		clean: {
+			docs: {
+				files: [
+					{
+						dot: true,
+						src: [
+							'<%= config.docs_server %>/*',
+							'!<%= config.docs_server %>/.git*'
+						]
+					}
+				]
+			}
+		},
+
+		less: {
+			docs: {
+				options: {
+					relativeUrls: true
+				},
+				files: {
+					'<%= config.docs_server %>/static/css/prototype.css': '<%= config.docs %>/static/less/prototype.less'
+				}
+			}
+		},
+
+		// Mocha testing framework configuration options
+		mocha: {
+			all: {
+				options: {
+					run: true,
+					urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
+				}
+			}
+		},
+
+		cssmin: {
+			docs: {
+				files: {
+					'<%= config.docs_server %>/static/css/docs.css': [ // target file name
+						'<%= config.docs_server %>/static/css/{,*/}*.css' // source files
+					]
+				}
+			}
+		},
+
+		uglify: {
+			docs: {
+				files: {
+					'<%= config.docs_server %>/static/js/docs.js': [ // target file name
+						'<%= config.docs %>/static/js/{,*/}*.js' // source files
+					]
+				}
+			}
+		},
+
+		concat: {
+			docs: {
+				files: {
+					'<%= config.docs_server %>/static/js/docs.js': [ // target file name
+						'<%= config.docs %>/static/js/{,*/}*.js' // source files
+					]
+				}
+			}
+		},
+
+		// Copies remaining files to places other tasks can use
+		copy: {
+			gravity: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.lib %>/gravity/dist',
+						dest: '<%= config.docs_server %>/static/gravity',
+						src: [ '**' ]
+					}
+				]
+			},
+			jquery: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.lib %>/jquery/dist',
+						dest: '<%= config.docs_server %>/static/jquery',
+						src: [ '**' ]
+					}
+				]
+			},
+			docs_html: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.docs %>',
+						dest: '<%= config.docs_server %>',
+						src: [
+							'index.html',
+							'pages/**',
+							'*.{ico,png,txt,js}',
+							'static/js/{,*/}*',
+							'static/fonts/{,*/}*.*'
+						]
+					}
+				]
+			},
+			docs_js: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.docs %>',
+						dest: '<%= config.docs_server %>',
+						src: [
+							'static/js/{,*/}*'
+						]
+					}
+				]
+			},
+			docs_images: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.docs %>',
+						dest: '<%= config.docs_server %>',
+						src: [
+							'static/images/{,*/}*',
+						]
+					}
+				]
+			}
+		},
+
+		// Run some tasks in parallel to speed up build process
+		concurrent: {
+			docs: [
+				'imagemin',
+				'svgmin'
+			]
+		},
+
+		compress: {
+			docs: {
+				options: {
+					mode: 'tgz',
+					archive: '<%= config.docs %>/docs.tar.gz'
+				},
+				files: [
+					{src: ['**', '!docs.tar.gz'], dest: 'docs/', cwd: '<%= config.docs %>', expand: true},
+					{src: ['**'], dest: 'docs/', cwd: '<%= config.lib %>', expand: true},
+					{src: ['**'], dest: 'docs/', cwd: '<%= config.docs_server %>', expand: true}
+				]
+			}
+		}
+	});
+
+	grunt.registerTask('build', function (target) {
+		grunt.task.run([
+			'clean:docs',
+			'copy:gravity',
+			'copy:jquery',
+			'copy:docs',
+			'concat:docs',
+			'uglify:docs',
+			'less:docs',
+			'cssmin:docs',
+			'generateSitemap'
+		]);
+	});
+
+	grunt.registerTask('dist', function (target) {
+		grunt.task.run([
+			'build',
+			'compress:docs'
+		]);
+	});
+
+	grunt.registerTask('gravity-dev', function (target) {
+		grunt.task.run([
+			'build',
+			'connect:livereload',
+			'watch'
+		]);
+	});
+
 	grunt.registerTask('generateSitemap', function () {
 		/*
 			SITEMAP GENERATOR
@@ -11,8 +289,8 @@ module.exports = function (grunt) {
 		var done = this.async();
 		var fs = require('fs');
 		var sitemap = {};
-		var output_directory = './app/static/js/';
-		var pages_directory = './app/pages';
+		var output_directory = './docs/static/js/';
+		var pages_directory = './docs/pages';
 
 		function walk (dir, callback) {
 			var results = [];

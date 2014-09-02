@@ -18,6 +18,10 @@
 		"/.*"
 	],
 	"dependencies": {
-		"ejspeed": "https://github.com/joshlangner/ejspeed.git#master"
+		"ejspeed": "https://github.com/joshlangner/ejspeed.git#master",
+    	"jquery": "~2.1.1",
+		"lodash": "2.4.1",
+		"bootstrap": "3.2.0"
+
 	}
 }
