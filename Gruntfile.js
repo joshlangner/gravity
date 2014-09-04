@@ -10,6 +10,7 @@ module.exports = function (grunt) {
 			lib: 'bower_components', // lib dir
 			docs: 'docs',
 			src: 'src',
+			dist: 'dist',
 			docs_server: 'docs_server' // docs server
 		},
 
@@ -70,7 +71,6 @@ module.exports = function (grunt) {
 					'<%= config.docs_server %>/static/fonts/{,*/}*'
 				]
 			}
-
 		},
 
 		// The actual grunt server settings
@@ -107,12 +107,12 @@ module.exports = function (grunt) {
 		},
 
 		less: {
-			docs: {
+			gravity_docs: {
 				options: {
 					relativeUrls: true
 				},
 				files: {
-					'<%= config.docs_server %>/static/css/prototype.css': '<%= config.docs %>/static/less/prototype.less'
+					'<%= config.docs_server %>/static/css/gravity.css': '<%= config.docs %>/static/less/gravity.less'
 				}
 			}
 		},
@@ -159,13 +159,24 @@ module.exports = function (grunt) {
 
 		// Copies remaining files to places other tasks can use
 		copy: {
-			gravity: {
+			gravity_docs: {
 				files: [
 					{
 						expand: true,
 						dot: true,
 						cwd: '<%= config.lib %>/gravity/dist',
 						dest: '<%= config.docs_server %>/static/gravity',
+						src: [ '**' ]
+					}
+				]
+			},
+			gravity_dist: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.src %>',
+						dest: '<%= config.dist %>',
 						src: [ '**' ]
 					}
 				]
@@ -181,6 +192,39 @@ module.exports = function (grunt) {
 					}
 				]
 			},
+			lodash: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.lib %>/lodash/dist',
+						dest: '<%= config.docs_server %>/static/lodash',
+						src: [ '**' ]
+					}
+				]
+			},
+			bootstrap: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.lib %>/bootstrap/dist',
+						dest: '<%= config.docs_server %>/static/bootstrap',
+						src: [ '**' ]
+					}
+				]
+			},
+			ejspeed: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.lib %>/ejspeed/dist',
+						dest: '<%= config.docs_server %>/static/ejspeed',
+						src: [ '**' ]
+					}
+				]
+			},
 			docs_html: {
 				files: [
 					{
@@ -192,7 +236,6 @@ module.exports = function (grunt) {
 							'index.html',
 							'pages/**',
 							'*.{ico,png,txt,js}',
-							'static/js/{,*/}*',
 							'static/fonts/{,*/}*.*'
 						]
 					}
@@ -219,7 +262,7 @@ module.exports = function (grunt) {
 						cwd: '<%= config.docs %>',
 						dest: '<%= config.docs_server %>',
 						src: [
-							'static/images/{,*/}*',
+							'static/images/{,*/}*'
 						]
 					}
 				]
@@ -249,32 +292,27 @@ module.exports = function (grunt) {
 		}
 	});
 
-	grunt.registerTask('build', function (target) {
+	grunt.registerTask('gravity-dev', function (target) {
 		grunt.task.run([
 			'clean:docs',
-			'copy:gravity',
+			'copy:gravity_dist',
+			'copy:gravity_docs',
 			'copy:jquery',
-			'copy:docs',
+			'copy:ejspeed',
+			'copy:lodash',
+			'copy:bootstrap',
 			'concat:docs',
 			'uglify:docs',
 			'less:docs',
 			'cssmin:docs',
-			'generateSitemap'
-		]);
-	});
-
-	grunt.registerTask('dist', function (target) {
-		grunt.task.run([
-			'build',
-			'compress:docs'
-		]);
-	});
-
-	grunt.registerTask('gravity-dev', function (target) {
-		grunt.task.run([
-			'build',
 			'connect:livereload',
 			'watch'
+		]);
+	});
+
+	grunt.registerTask('gravity-dist', function (target) {
+		grunt.task.run([
+			'copy:gravity_dist'
 		]);
 	});
 

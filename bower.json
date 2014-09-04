@@ -19,9 +19,8 @@
 	],
 	"dependencies": {
 		"ejspeed": "https://github.com/joshlangner/ejspeed.git#master",
-    	"jquery": "~2.1.1",
-		"lodash": "2.4.1",
-		"bootstrap": "3.2.0"
-
+    	"jquery": "https://github.com/jquery/jquery.git#2.1.1",
+		"lodash": "https://github.com/lodash/lodash.git#2.4.1",
+		"bootstrap": "https://github.com/twbs/bootstrap.git#v3.2.0"
 	}
 }
