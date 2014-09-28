@@ -1,6 +1,9 @@
 'use strict';
 module.exports = function (grunt) {
 
+	// Load grunt tasks automatically
+	require('load-grunt-tasks')(grunt);
+
 	// Define the configuration for all the tasks
 	grunt.initConfig({
 
@@ -52,7 +55,7 @@ module.exports = function (grunt) {
 					'<%= config.src %>/less/{,*/}*.less'
 				],
 				tasks: [
-					'less:docs'
+					'less:gravity_docs'
 				],
 				options: {
 					livereload: 35728
@@ -76,7 +79,7 @@ module.exports = function (grunt) {
 		// The actual grunt server settings
 		connect: {
 			options: {
-				port: 9008,
+				port: 9007,
 				livereload: 35728, // changed from default of 35729 for dev
 				// Change this to '0.0.0.0' to access the server from outside
 				hostname: 'localhost'
@@ -303,7 +306,7 @@ module.exports = function (grunt) {
 			'copy:bootstrap',
 			'concat:docs',
 			'uglify:docs',
-			'less:docs',
+			'less:gravity_docs',
 			'cssmin:docs',
 			'connect:livereload',
 			'watch'

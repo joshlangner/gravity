@@ -8,6 +8,7 @@
 *.todo
 node_modules
 bower_components
+docs_server
 
 # OS generated files #
 ######################
