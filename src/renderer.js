@@ -1,9 +1,5 @@
 /*  -----------------------------------------
 
-		docs.js
+		renderer.js
 
 	-------------------------------------------*/
-;(function(docs, $, undefined) {
-
-
-}(window.docs = window.docs || {}, jQuery));

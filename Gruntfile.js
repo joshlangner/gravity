@@ -96,6 +96,17 @@ module.exports = function (grunt) {
 
 		// Empties folders to start fresh
 		clean: {
+			dist: {
+				files: [
+					{
+						dot: true,
+						src: [
+							'<%= config.dist %>/*',
+							'!<%= config.dist %>/.git*'
+						]
+					}
+				]
+			},
 			docs: {
 				files: [
 					{
@@ -115,17 +126,7 @@ module.exports = function (grunt) {
 					relativeUrls: true
 				},
 				files: {
-					'<%= config.docs_server %>/static/css/gravity.css': '<%= config.docs %>/static/less/gravity.less'
-				}
-			}
-		},
-
-		// Mocha testing framework configuration options
-		mocha: {
-			all: {
-				options: {
-					run: true,
-					urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
+					'<%= config.docs_server %>/static/gravity-docs/css/docs.css': '<%= config.docs %>/static/less/docs.less'
 				}
 			}
 		},
@@ -133,17 +134,24 @@ module.exports = function (grunt) {
 		cssmin: {
 			docs: {
 				files: {
-					'<%= config.docs_server %>/static/css/docs.css': [ // target file name
-						'<%= config.docs_server %>/static/css/{,*/}*.css' // source files
+					'<%= config.docs_server %>/static/gravity-docs/css/docs.css': [ // target file name
+						'<%= config.docs_server %>/static/gravity-docs/css/{,*/}*.css' // source files
 					]
 				}
 			}
 		},
 
 		uglify: {
+			dist: {
+				files: {
+					'<%= config.dist %>/gravity.min.js': [ // target file name
+						'<%= config.dist %>/gravity.js' // source files
+					]
+				}
+			},
 			docs: {
 				files: {
-					'<%= config.docs_server %>/static/js/docs.js': [ // target file name
+					'<%= config.docs_server %>/static/gravity-docs/js/docs-all.js': [ // target file name
 						'<%= config.docs %>/static/js/{,*/}*.js' // source files
 					]
 				}
@@ -151,9 +159,16 @@ module.exports = function (grunt) {
 		},
 
 		concat: {
+			gravity: {
+				files: {
+					'<%= config.dist %>/gravity.js': [ // target file name
+						'<%= config.src %>/{,*/}*.js' // source files
+					]
+				}
+			},
 			docs: {
 				files: {
-					'<%= config.docs_server %>/static/js/docs.js': [ // target file name
+					'<%= config.docs_server %>/static/gravity-docs/js/docs-all.js': [ // target file name
 						'<%= config.docs %>/static/js/{,*/}*.js' // source files
 					]
 				}
@@ -162,17 +177,6 @@ module.exports = function (grunt) {
 
 		// Copies remaining files to places other tasks can use
 		copy: {
-			gravity_docs: {
-				files: [
-					{
-						expand: true,
-						dot: true,
-						cwd: '<%= config.lib %>/gravity/dist',
-						dest: '<%= config.docs_server %>/static/gravity',
-						src: [ '**' ]
-					}
-				]
-			},
 			gravity_dist: {
 				files: [
 					{
@@ -180,6 +184,17 @@ module.exports = function (grunt) {
 						dot: true,
 						cwd: '<%= config.src %>',
 						dest: '<%= config.dist %>',
+						src: [ '**' ]
+					}
+				]
+			},
+			gravity_docs: {
+				files: [
+					{
+						expand: true,
+						dot: true,
+						cwd: '<%= config.dist %>',
+						dest: '<%= config.docs_server %>/static/gravity',
 						src: [ '**' ]
 					}
 				]
@@ -237,7 +252,7 @@ module.exports = function (grunt) {
 						dest: '<%= config.docs_server %>',
 						src: [
 							'index.html',
-							'pages/**',
+							'views/**',
 							'*.{ico,png,txt,js}',
 							'static/fonts/{,*/}*.*'
 						]
@@ -298,8 +313,9 @@ module.exports = function (grunt) {
 	grunt.registerTask('gravity-dev', function (target) {
 		grunt.task.run([
 			'clean:docs',
-			'copy:gravity_dist',
+			'gravity-dist',
 			'copy:gravity_docs',
+			'copy:docs_html',
 			'copy:jquery',
 			'copy:ejspeed',
 			'copy:lodash',
@@ -315,7 +331,9 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('gravity-dist', function (target) {
 		grunt.task.run([
-			'copy:gravity_dist'
+			'clean:dist',
+			'concat:gravity',
+			'uglify:dist'
 		]);
 	});
 

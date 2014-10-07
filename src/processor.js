@@ -1,9 +1,5 @@
 /*  -----------------------------------------
 
-		docs.js
+		processor.js
 
 	-------------------------------------------*/
-;(function(docs, $, undefined) {
-
-
-}(window.docs = window.docs || {}, jQuery));
