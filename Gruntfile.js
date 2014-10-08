@@ -19,13 +19,26 @@ module.exports = function (grunt) {
 
 		// Watches files for changes and runs tasks based on the changed files
 		watch: {
-			js: {
+			docs_js: {
 				files: [
 					'<%= config.docs %>/static/js/{,*/}*.js'
 				],
 				tasks: [
-					'copy:docs_js',
-					'concat:docs_js'
+					'concat:docs',
+					'uglify:docs'
+				],
+				options: {
+					livereload: 35728
+				}
+			},
+
+			src_js: {
+				files: [
+					'<%= config.src %>/{,*/}*.js'
+				],
+				tasks: [
+					'gravity-dist',
+					'copy:gravity_docs'
 				],
 				options: {
 					livereload: 35728
@@ -34,15 +47,14 @@ module.exports = function (grunt) {
 
 			docs: {
 				files: [
-					'<%= config.docs %>/static/js/{,*/}*.js',
 					'<%= config.docs %>/{,*/}*',
 					'<%= config.docs %>/pages/**',
 					'<%= config.docs %>/static/images/{,*/}*',
 					'<%= config.docs %>/static/fonts/{,*/}*'
 				],
 				tasks: [
-					'generateSitemap',
-					'copy:docs'
+					'copy:docs_html',
+					'copy:docs_static'
 				],
 				options: {
 					livereload: 35728
@@ -51,8 +63,7 @@ module.exports = function (grunt) {
 
 			less: {
 				files: [
-					'<%= config.docs %>/static/less/**/{,*/}*.less',
-					'<%= config.src %>/less/{,*/}*.less'
+					'<%= config.docs %>/static/less/{,*/}*.less'
 				],
 				tasks: [
 					'less:gravity_docs'
@@ -60,27 +71,27 @@ module.exports = function (grunt) {
 				options: {
 					livereload: 35728
 				}
-			},
-
-			livereload: {
-				options: {
-					livereload: '<%= connect.options.livereload %>'
-				},
-				files: [
-					'<%= config.docs_server %>/{,*/}*.html',
-					'<%= config.docs_server %>/static/css/{,*/}*.css',
-					'<%= config.docs_server %>/static/js/{,*/}*.js',
-					'<%= config.docs_server %>/static/images/{,*/}*',
-					'<%= config.docs_server %>/static/fonts/{,*/}*'
-				]
 			}
+
+			// livereload: {
+			// 	options: {
+			// 		livereload: '<%= connect.options.livereload %>'
+			// 	},
+			// 	files: [
+			// 		'<%= config.docs_server %>/{,*/}*.html',
+			// 		'<%= config.docs_server %>/static/css/{,*/}*.css',
+			// 		'<%= config.docs_server %>/static/js/{,*/}*.js',
+			// 		'<%= config.docs_server %>/static/images/{,*/}*',
+			// 		'<%= config.docs_server %>/static/fonts/{,*/}*'
+			// 	]
+			// }
 		},
 
 		// The actual grunt server settings
 		connect: {
 			options: {
 				port: 9007,
-				livereload: 35728, // changed from default of 35729 for dev
+				livereload: 35729,
 				// Change this to '0.0.0.0' to access the server from outside
 				hostname: 'localhost'
 			},
@@ -120,6 +131,7 @@ module.exports = function (grunt) {
 			}
 		},
 
+		// compiles LESS files
 		less: {
 			gravity_docs: {
 				options: {
@@ -131,6 +143,7 @@ module.exports = function (grunt) {
 			}
 		},
 
+		// minifies CSS
 		cssmin: {
 			docs: {
 				files: {
@@ -141,6 +154,7 @@ module.exports = function (grunt) {
 			}
 		},
 
+		// minifies JS files
 		uglify: {
 			dist: {
 				files: {
@@ -151,13 +165,14 @@ module.exports = function (grunt) {
 			},
 			docs: {
 				files: {
-					'<%= config.docs_server %>/static/gravity-docs/js/docs-all.js': [ // target file name
+					'<%= config.docs_server %>/static/gravity-docs/js/docs-all.min.js': [ // target file name
 						'<%= config.docs %>/static/js/{,*/}*.js' // source files
 					]
 				}
 			}
 		},
 
+		// concatenates JS files
 		concat: {
 			gravity: {
 				files: {
@@ -253,34 +268,21 @@ module.exports = function (grunt) {
 						src: [
 							'index.html',
 							'views/**',
-							'*.{ico,png,txt,js}',
-							'static/fonts/{,*/}*.*'
+							'*.{ico,png,txt,js}'
 						]
 					}
 				]
 			},
-			docs_js: {
+			docs_static: {
 				files: [
 					{
 						expand: true,
 						dot: true,
-						cwd: '<%= config.docs %>',
-						dest: '<%= config.docs_server %>',
+						cwd: '<%= config.docs %>/static',
+						dest: '<%= config.docs_server %>/static/gravity-docs/',
 						src: [
-							'static/js/{,*/}*'
-						]
-					}
-				]
-			},
-			docs_images: {
-				files: [
-					{
-						expand: true,
-						dot: true,
-						cwd: '<%= config.docs %>',
-						dest: '<%= config.docs_server %>',
-						src: [
-							'static/images/{,*/}*'
+							'images/{,*/}*.*',
+							'fonts/{,*/}*.*'
 						]
 					}
 				]
@@ -312,9 +314,18 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('gravity-dev', function (target) {
 		grunt.task.run([
-			'clean:docs',
 			'gravity-dist',
+			'gravity-docs',
+			'connect:livereload',
+			'watch'
+		]);
+	});
+
+	grunt.registerTask('gravity-docs', function (target) {
+		grunt.task.run([
+			'clean:docs',
 			'copy:gravity_docs',
+			'copy:docs_static',
 			'copy:docs_html',
 			'copy:jquery',
 			'copy:ejspeed',
@@ -323,9 +334,7 @@ module.exports = function (grunt) {
 			'concat:docs',
 			'uglify:docs',
 			'less:gravity_docs',
-			'cssmin:docs',
-			'connect:livereload',
-			'watch'
+			'cssmin:docs'
 		]);
 	});
 
