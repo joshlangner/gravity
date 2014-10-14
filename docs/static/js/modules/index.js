@@ -1,12 +1,6 @@
 /*  -----------------------------------------
 
-		loader.js
+		index.js
 
 	-------------------------------------------*/
-;gravity.load = function (o) {
-	if (o) {
-
-	} else {
-		
-	}
-}
+;docs.index = 'index.html'

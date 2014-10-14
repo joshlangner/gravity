@@ -28,7 +28,7 @@ module.exports = function (grunt) {
 					'uglify:docs'
 				],
 				options: {
-					livereload: 35728
+					livereload: 35729
 				}
 			},
 
@@ -41,7 +41,7 @@ module.exports = function (grunt) {
 					'copy:gravity_docs'
 				],
 				options: {
-					livereload: 35728
+					livereload: 35729
 				}
 			},
 
@@ -57,7 +57,7 @@ module.exports = function (grunt) {
 					'copy:docs_static'
 				],
 				options: {
-					livereload: 35728
+					livereload: 35729
 				}
 			},
 
@@ -69,7 +69,7 @@ module.exports = function (grunt) {
 					'less:gravity_docs'
 				],
 				options: {
-					livereload: 35728
+					livereload: 35729
 				}
 			}
 
@@ -177,6 +177,8 @@ module.exports = function (grunt) {
 			gravity: {
 				files: {
 					'<%= config.dist %>/gravity.js': [ // target file name
+						'<%= config.src %>/gravity.js',
+						'<%= config.src %>/config.js',
 						'<%= config.src %>/{,*/}*.js' // source files
 					]
 				}
@@ -184,7 +186,9 @@ module.exports = function (grunt) {
 			docs: {
 				files: {
 					'<%= config.docs_server %>/static/gravity-docs/js/docs-all.js': [ // target file name
-						'<%= config.docs %>/static/js/{,*/}*.js' // source files
+						'<%= config.docs %>/static/js/docs.js',
+						'<%= config.docs %>/static/js/config.js',
+						'<%= config.docs %>/static/js//modules/{,*/}*.js' // source files
 					]
 				}
 			}

@@ -1,12 +1,8 @@
 /*  -----------------------------------------
 
-		loader.js
+		config.js
 
 	-------------------------------------------*/
-;gravity.load = function (o) {
-	if (o) {
-
-	} else {
-		
-	}
+;gravity.config = {
+	//app: ''
 }
