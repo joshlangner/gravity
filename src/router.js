@@ -16,6 +16,9 @@
 			route = (hash.substring(2)).split('/');
 			gravity.log({message: route.join(), type: 'info'});
 			if (/^[a-z0-9]+$/i.test(route[0]) && gravity.app.hasOwnProperty([route[0]])) {
+
+				// module/id/action?[params]
+
 				gravity.state = {
 					model: route[0],
 					id: route[1],
@@ -23,12 +26,16 @@
 					params: route[3]
 				}
 
-				// module/id/action?[params]
-				/* 
-
-					EXECUTE DEFAULT RENDER STACK.......
-
-				*/ 
+				if (typeof gravity.app[route[0]] === 'string') {
+					// invoke default static module, no data required
+					// skips compiler & data processing
+					gravity.load(route[0], function(page) {
+						gravity.render(page);
+					});
+				} else {
+					// invoke dynamic module
+					gravity.app[route[0]];
+				}
 
 			} else {
 				// module does not exist or bad module name
@@ -39,7 +46,10 @@
 				if (gravity.app.hasOwnProperty(['404'])) {
 					gravity.app['404'];
 				} else {
-					gravity.log({message: 'The application does not have a 404 file specified.', type: 'error'});
+					gravity.log({
+						message: 'The application does not have a 404 file specified.', 
+						type: 'error'
+					});
 				}
 			}
 			

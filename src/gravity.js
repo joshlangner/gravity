@@ -5,6 +5,10 @@
 	-------------------------------------------*/
 ;(function(gravity, $, undefined) {
 
+	// set mustache tags by default
+	// do not cache templates by default
+	EJSpeed.config({ type: '{{', cache: false });
+
 	gravity.state = {
 		model: '',
 		id: '',
