@@ -29,12 +29,13 @@
 				if (typeof gravity.app[route[0]] === 'string') {
 					// invoke default static module, no data required
 					// skips compiler & data processing
-					gravity.load(route[0], function(page) {
-						gravity.render(page);
-					});
+
+					gravity.core();
+
 				} else {
 					// invoke dynamic module
-					gravity.app[route[0]];
+					gravity.core()
+					// gravity.app[route[0]];
 				}
 
 			} else {

@@ -13,6 +13,7 @@
 
 		if (type && type == 'html') {
 			// loads template synchronously
+			// EJSpeed currently handles the load + compiling
 			var template = new EJSpeed({url: view});
 			callback(template);
 
