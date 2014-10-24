@@ -5,18 +5,19 @@
 	-------------------------------------------*/
 ;(function(gravity, $, undefined) {
 
-	// set mustache tags by default
-	// do not cache templates by default
+	// set mustache tags & do not cache templates by default
 	EJSpeed.config({ type: '{{', cache: false });
 
 	gravity.state = {
-		model: '',
+		url: '',
+		module: '',
 		id: '',
 		action: '',
 		params: '',
 		reset: function() {
 			gravity.state = {
-				model: '',
+				url: '',
+				module: '',
 				id: '',
 				action: '',
 				params: ''

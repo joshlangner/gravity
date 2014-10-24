@@ -256,9 +256,9 @@ module.exports = function (grunt) {
 					{
 						expand: true,
 						dot: true,
-						cwd: '<%= config.lib %>/ejspeed/dist',
+						cwd: '<%= config.lib %>/ejspeed',
 						dest: '<%= config.docs_server %>/static/ejspeed',
-						src: [ '**' ]
+						src: [ 'ejspeed.js' ]
 					}
 				]
 			},
