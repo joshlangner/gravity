@@ -47,8 +47,8 @@ module.exports = function (grunt) {
 
 			docs: {
 				files: [
-					'<%= config.docs %>/{,*/}*',
-					'<%= config.docs %>/pages/**',
+					'<%= config.docs %>/index.html',
+					'<%= config.docs %>/views/**',
 					'<%= config.docs %>/static/images/{,*/}*',
 					'<%= config.docs %>/static/fonts/{,*/}*'
 				],

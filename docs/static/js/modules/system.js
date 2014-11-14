@@ -4,9 +4,17 @@
 		required modules for gravity.
 
 	-------------------------------------------*/
-;docs['404'] = '404.html'
-;docs['500'] = function(response, status, errorThrown) {
-	gravity.log({message: response, type:'error'})
-	gravity.log({message: status, type:'error'})
-	gravity.log({message: errorThrown, type:'error'})
+;docs.system = {
+
+	// each module should have an index / default handler
+	index: function () {
+
+	},
+
+	'404': 'system/404.html',
+
+	'500': 'system/500.html',
+
+	error: 'system/error.html'
+
 }

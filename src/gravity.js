@@ -5,6 +5,8 @@
 	-------------------------------------------*/
 ;(function(gravity, $, undefined) {
 
+
+
 	// set mustache tags & do not cache templates by default
 	EJSpeed.config({ type: '{{', cache: false });
 
@@ -26,7 +28,13 @@
 	gravity.app = '';
 
 	gravity.init = function () {
-		gravity.route();
+
+		gravity.log({
+			message: 'Booting Gravity.',
+			type: 'info'
+		})
+
+		gravity.route.init();
 	}
 
 }(window.gravity = window.gravity || {}, jQuery));

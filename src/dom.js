@@ -1,23 +1,30 @@
 /*  -----------------------------------------
 
 		dom.js
-		Attach HTML to the DOM, limit binding 
+		Attach HTML to the DOM, limit binding
 		assignments to post-render
 
 	-------------------------------------------*/
 ;gravity.dom = function (o) {
 
+	gravity.log({
+		message: 'Rendering to DOM.',
+		type: 'info'
+	})
+
 	/* o = {
 			target: '.element' or '#element',
-			payload: '<processedhtml></processedhtml>' 
+			compiledHtml: '<compiledHtml></compiledHtml>'
 		}
 	*/
-
-	$(o.target).html(o.payload)
+	if (o.target && typeof o.compiledHtml === 'string') {
+		$(o.target).html(o.compiledHtml);
+	}
 
 }
 
 // empties DOM item
 ;gravity.dom.empty = function (o) {
+	// o = target html element, i.e. 'div#myDiv'
 	$(o.target).empty();
 }

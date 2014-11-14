@@ -4,64 +4,81 @@
 
 	-------------------------------------------*/
 
-;gravity.route = function (o) {
+;gravity.route = {
+	init: function () {
 
-	// bind to hashchange
-	$(window).on('hashchange', function (e) {
-		e.preventDefault();
-		e.stopPropagation();
-		var hash = window.location.hash;
-		var route = [];
+		gravity.log({
+			message: 'Initializing router.',
+			type: 'info'
+		})
 
-		gravity.state.reset();
-		gravity.state.url = hash.substring(2);
+		// bind to hashchange
+		$(window).on('hashchange', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var hash = window.location.hash;
+			var route = [];
 
-		if (hash.indexOf('#/') > -1) {
+			gravity.state.reset();
 
-			route = (hash.substring(2)).split('/');
-			gravity.state.url = hash.substring(2);
-			gravity.log({message: 'Route: ' + route.join(), type: 'info'});
+			if (hash.indexOf('#/') > -1) {
 
-			if (/^[a-z0-9]+$/i.test(route[0]) && gravity.app.hasOwnProperty([route[0]])) {
-
-				// set up gravity state
-				gravity.state.module = route[0];
-				gravity.state.id = route[1];
-				gravity.state.action = route[2];
-				gravity.state.params = route[3];
-
-				gravity.core();
-
-			} else {
-				// module does not exist or bad module name
+				route = (hash.substring(2)).split('/');
+				gravity.state.url = hash.substring(2);
 				gravity.log({
-					message: 'The module "'+route[0]+'" does not exist, loading '+route[0]+'.html instead.',
+					message: 'Identified route: ' + route.join(),
 					type: 'info'
 				});
-				var url = gravity.state.url;
-				gravity.state.reset();
-				gravity.state.module = '404';
-				
+
+				if (/^[a-z0-9]+$/i.test(route[0]) && gravity.app.hasOwnProperty([route[0]])) {
+
+					console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
+
+					// set up gravity state
+					gravity.state.module = route[0];
+					gravity.state.id = route[1] || null;
+					gravity.state.action = route[2] || null;
+					gravity.state.params = route[3] || null;
+
+					gravity.core();
+
+				} else {
+					// module does not exist or bad module name
+					gravity.log({
+						message: 'The module "'+route[0]+'" does not exist, loading /' +route.join('/') +'.html instead.',
+						type: 'log'
+					});
+
+					gravity.core();
+
+					// if (gravity.app.hasOwnProperty(['404'])) {
+					// 	gravity.app['404'];
+					// } else {
+					// 	gravity.log({
+					// 		message: 'The application does not have a 404 file specified.',
+					// 		type: 'error'
+					// 	});
+					// }
+				}
+
+			} else {
+				gravity.log({
+					message: 'No routes specified, loading default route.',
+					type: 'log'
+				});
+				gravity.state.url = gravity.app.index;
+				gravity.log('Routing to "'+gravity.app.index+'"');
 				gravity.core();
-
-				// if (gravity.app.hasOwnProperty(['404'])) {
-				// 	gravity.app['404'];
-				// } else {
-				// 	gravity.log({
-				// 		message: 'The application does not have a 404 file specified.', 
-				// 		type: 'error'
-				// 	});
-				// }
 			}
-			
-		} else {
-			gravity.state.url = gravity.app.index;
-			gravity.log('Routing to "'+gravity.app.index+'"');
-			gravity.core('static');
-		}
-	});
+		});
 
-	// Trigger first hashchange
-	$(window).trigger('hashchange');
+		// Trigger first hashchange
+		$(window).trigger('hashchange');
+
+	},
+
+	go: function () {
+
+	}
 
 }
