@@ -6,18 +6,25 @@
 
 ;gravity.core = function (o) {
 
-	if (typeof o === 'string') {
-		if (o == 'static') {
+	var type = o || 'static';
+
+
+	if (!gravity.state.module || typeof gravity.app[gravity.state.module] === 'string') {
+		// invoke default static module, no data required
+		// skips compiler & data processing
+
+		if (type == 'static') {
 			gravity.load({
-				type: 'html',
+				dataType: 'html',
 				callback: function (response) {
 					gravity.render(response);
 				}
 			});
 		}
-		if (o == 'dynamic') {
 
-		}
+	} else {
+		// invoke dynamic module
+		type = 'dynamic';
 	}
 
 	// gravity.load(null, function(page) {

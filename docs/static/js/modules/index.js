@@ -3,4 +3,4 @@
 		index.js
 
 	-------------------------------------------*/
-;docs.index = 'index.html'
+;docs.index = 'home.html'

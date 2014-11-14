@@ -6,14 +6,11 @@
 ;gravity.render = function (o) {
 
 	/* 
-		o = pre-processed, precompiled processed HTML
+		o = pre-processed, precompiled processed HTML STRING
 	*/
 
 	if (typeof o === 'string') {
-		// added settimeout due to livereload issues?????????
-		
-			$('div#gravity-stage').html(o);
-		
+		$('div#gravity-stage').html(o);
 	}
 
 }

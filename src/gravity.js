@@ -9,19 +9,17 @@
 	EJSpeed.config({ type: '{{', cache: false });
 
 	gravity.state = {
-		url: '',
-		module: '',
-		id: '',
-		action: '',
-		params: '',
+		url: null,
+		module: null,
+		id: null,
+		action: null,
+		params: null,
 		reset: function() {
-			gravity.state = {
-				url: '',
-				module: '',
-				id: '',
-				action: '',
-				params: ''
-			}
+			gravity.state.url = null;
+			gravity.state.module = null;
+			gravity.state.id = null;
+			gravity.state.action = null;
+			gravity.state.params = null;
 		}
 	}
 

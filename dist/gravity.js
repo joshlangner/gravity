@@ -9,19 +9,17 @@
 	EJSpeed.config({ type: '{{', cache: false });
 
 	gravity.state = {
-		url: '',
-		module: '',
-		id: '',
-		action: '',
-		params: '',
+		url: null,
+		module: null,
+		id: null,
+		action: null,
+		params: null,
 		reset: function() {
-			gravity.state = {
-				url: '',
-				module: '',
-				id: '',
-				action: '',
-				params: ''
-			}
+			gravity.state.url = null;
+			gravity.state.module = null;
+			gravity.state.id = null;
+			gravity.state.action = null;
+			gravity.state.params = null;
 		}
 	}
 
@@ -46,7 +44,11 @@
 		compiler.js
 
 	-------------------------------------------*/
-
+;gravity.compile = function (o) {
+	o = o || null;
+	var compiledHtml = new EJSpeed({text: o}).render();
+	gravity.render(compiledHtml);
+}
 /*  -----------------------------------------
 
 		core.js
@@ -55,18 +57,25 @@
 
 ;gravity.core = function (o) {
 
-	if (typeof o === 'string') {
-		if (o == 'static') {
+	var type = o || 'static';
+
+
+	if (!gravity.state.module || typeof gravity.app[gravity.state.module] === 'string') {
+		// invoke default static module, no data required
+		// skips compiler & data processing
+
+		if (type == 'static') {
 			gravity.load({
-				type: 'html',
+				dataType: 'html',
 				callback: function (response) {
 					gravity.render(response);
 				}
 			});
 		}
-		if (o == 'dynamic') {
 
-		}
+	} else {
+		// invoke dynamic module
+		type = 'dynamic';
 	}
 
 	// gravity.load(null, function(page) {
@@ -135,35 +144,36 @@
 
 	-------------------------------------------*/
 ;gravity.load = function (o) {
-	if (o.type && o.type == 'html') {
-		// loads template synchronously
-		// EJSpeed currently handles the load + compiling
-		var template = new EJSpeed({url: 'views/'+gravity.state.url+'.html'}).render();
-		o.callback(template);
-
-	} else {
 
 		var data;
+		var dataType = o.dataType || 'html';
+		var url = '';
+
+		if (gravity.state.url.indexOf('.html') > -1 || dataType == 'html') {
+			url = 'views/' + gravity.state.url;
+			if (url.indexOf('.html') === -1) {
+				url = url + '.html';
+			}
+		}
+
 		$.ajax({
 			url: url,
 			type: "GET",
-			dataType: 'json',
+			dataType: dataType,
 			success: function(response, status, xhr) {
 				data = response;
 			},
 			error: function(response, status, errorThrown) {
 				gravity.log({
-					message: errorThrown,
+					message: response.status + ' ' + errorThrown + ' - ' + response.responseText,
 					type: 'error'
 				})
 				// gravity.app['500'](response, status, errorThrown);
 				return false;
 			}
 		}).done(function() {
-			//callback(data);
+			gravity.compile(data)
 		});
-
-	}
 
 	// } else {
 	// 	gravity.log({
@@ -210,14 +220,11 @@
 ;gravity.render = function (o) {
 
 	/* 
-		o = pre-processed, precompiled processed HTML
+		o = pre-processed, precompiled processed HTML STRING
 	*/
 
 	if (typeof o === 'string') {
-		// added settimeout due to livereload issues?????????
-		
-			$('div#gravity-stage').html(o);
-		
+		$('div#gravity-stage').html(o);
 	}
 
 }
@@ -236,31 +243,24 @@
 		var hash = window.location.hash;
 		var route = [];
 
-		gravity.state = {
-			url: hash.substring(2)
-		}
+		gravity.state.reset();
+		gravity.state.url = hash.substring(2);
 
 		if (hash.indexOf('#/') > -1) {
+
 			route = (hash.substring(2)).split('/');
-			gravity.log({message: route.join(), type: 'info'});
+			gravity.state.url = hash.substring(2);
+			gravity.log({message: 'Route: ' + route.join(), type: 'info'});
 
 			if (/^[a-z0-9]+$/i.test(route[0]) && gravity.app.hasOwnProperty([route[0]])) {
 
-				gravity.state = {
-					module: route[0],
-					id: route[1],
-					action: route[2],
-					params: route[3]
-				}
+				// set up gravity state
+				gravity.state.module = route[0];
+				gravity.state.id = route[1];
+				gravity.state.action = route[2];
+				gravity.state.params = route[3];
 
-				if (typeof gravity.app[route[0]] === 'string') {
-					// invoke default static module, no data required
-					// skips compiler & data processing
-					gravity.core('static');
-				} else {
-					// invoke dynamic module
-					gravity.core('dynamic');
-				}
+				gravity.core();
 
 			} else {
 				// module does not exist or bad module name
@@ -268,8 +268,11 @@
 					message: 'The module "'+route[0]+'" does not exist, loading '+route[0]+'.html instead.',
 					type: 'info'
 				});
+				var url = gravity.state.url;
+				gravity.state.reset();
+				gravity.state.module = '404';
 				
-				gravity.core('static');
+				gravity.core();
 
 				// if (gravity.app.hasOwnProperty(['404'])) {
 				// 	gravity.app['404'];
@@ -282,8 +285,9 @@
 			}
 			
 		} else {
-			gravity.log('Routing to "'+gravity.app.def+'"');
-			gravity.app.def;
+			gravity.state.url = gravity.app.index;
+			gravity.log('Routing to "'+gravity.app.index+'"');
+			gravity.core('static');
 		}
 	});
 
