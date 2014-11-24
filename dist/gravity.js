@@ -1,11 +1,9 @@
 /*  -----------------------------------------
 
-		Gravity.js
+	Gravity.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;(function(gravity, $, undefined) {
-
-
 
 	// set mustache tags & do not cache templates by default
 	EJSpeed.config({ type: '{{', cache: false });
@@ -30,7 +28,7 @@
 	gravity.init = function () {
 
 		gravity.log({
-			message: 'Booting Gravity.',
+			message: 'BOOT',
 			type: 'info'
 		})
 
@@ -41,26 +39,42 @@
 
 /*  -----------------------------------------
 
-		config.js
+	config.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;gravity.config = {
 	//app: ''
 }
 /*  -----------------------------------------
 
-		compiler.js
+	compiler.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;gravity.compile = function (o) {
 
 	gravity.log({
-		message: 'Compiling views.',
+		message: 'COMPILE',
 		type: 'info'
 	})
 
-	o = o || null;
-	var compiledHtml = new EJSpeed({text: o}).render();
+	/*
+		o = {
+			data: 'data to compile with view',
+			template: 'pre-processed html template'
+		}
+	*/
+
+	var template = '';
+	var data = null;
+
+	if (typeof o === 'string') {
+		template = o;
+	} else {
+		template = o.template;
+		data = o.data || null;
+	}
+
+	var compiledHtml = new EJSpeed({text: template}).render(data);
 
 	gravity.dom({
 		target: 'div#gravity-stage',
@@ -70,25 +84,24 @@
 
 /*  -----------------------------------------
 
-		core.js
-		gravity assumes a module > id > action & params approach
-	-------------------------------------------*/
+	core.js
+	gravity assumes a module > id > action & params approach
+
+-------------------------------------------*/
 
 ;gravity.core = function (o) {
 
 	gravity.log({
-		message: 'Executing gravity core.',
+		message: 'CORE',
 		type: 'info'
-	})
+	});
 
-	/*
-	o = {
-		data: data
-	}
-	*/
-
-	if (typeof gravity.app[gravity.state.module] === 'string') {
+	if (typeof gravity.app[gravity.state.module] === 'string' || (!gravity.app[gravity.state.module] && gravity.state.url)) {
 		// Just defines a route or HTML page to load
+
+		gravity.load({
+			dataType: 'html'
+		});
 
 	} else {
 		// run the index function on the module.
@@ -99,36 +112,21 @@
 			gravity.log({
 				message: 'Running action on a module.',
 				type: 'info'
-			})
+			});
 
 			// assume an id exists and run the action
 			gravity.app[gravity.state.module][gravity.state.action];
+
 		} else {
 
 			gravity.log({
 				message: 'Running module index.',
 				type: 'info'
-			})
+			});
 
 			// execute the default (index) function
 			gravity.app[gravity.state.module].index();
 		}
-	}
-
-	if (!gravity.state.module || typeof gravity.app[gravity.state.module] === 'string') {
-		// invoke default static module, no data required
-		// skips compiler & data processing
-
-		gravity.load({
-			dataType: 'html',
-			callback: function (response) {
-				//gravity.render(response);
-			}
-		});
-
-	} else {
-		// invoke dynamic module
-		type = 'dynamic';
 	}
 
 	// gravity.load(null, function(page) {
@@ -142,19 +140,20 @@
 }
 /*  -----------------------------------------
 
-		dom.js
-		Attach HTML to the DOM, limit binding
-		assignments to post-render
+	dom.js
+	Attach HTML to the DOM, limit binding
+	assignments to post-render
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;gravity.dom = function (o) {
 
 	gravity.log({
-		message: 'Rendering to DOM.',
+		message: 'DOM',
 		type: 'info'
 	})
 
-	/* o = {
+	/*
+		o = {
 			target: '.element' or '#element',
 			compiledHtml: '<compiledHtml></compiledHtml>'
 		}
@@ -162,6 +161,8 @@
 	if (o.target && typeof o.compiledHtml === 'string') {
 		$(o.target).html(o.compiledHtml);
 	}
+
+	gravity.render();
 
 }
 
@@ -173,15 +174,41 @@
 
 /*  -----------------------------------------
 
-		fn.js
+	error.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
+;gravity.error = function (o) {
+
+	gravity.log({
+		message: o.status,
+		type: 'error'
+	});
+
+	gravity.state.reset();
+	gravity.state.url = 'system/error.html';
+
+	gravity.load({
+		url: 'system/error.html',
+		callback: function (template) {
+			gravity.compile({
+				data: o,
+				template: template
+			});
+		}
+	});
+}
+
+/*  -----------------------------------------
+
+	fn.js
+
+-------------------------------------------*/
 
 ;gravity.fn = {
 
-	/* 
+	/*
 		gravity.fn.contains
-		Checks an array to see if it contains a value. 
+		Checks an array to see if it contains a value.
 		Minimum of 2x faster, up to 20x faster than native Array.indexOf
 	*/
 	contains: function (a, v) {
@@ -192,46 +219,48 @@
 		}
 		return false;
 	}
-	
+
 };
 /*  -----------------------------------------
 
-		loader.js
-		wraps jQuery AJAX function with
-		promise-focused API
+	loader.js
+	wraps jQuery AJAX function with
+	promise-focused API
 
-		// currently used only for JSON calls
-		// EJSpeed handles template loading & compiling
-
-	-------------------------------------------*/
+-------------------------------------------*/
 ;gravity.load = function (o) {
 
-	var responseData = null;
-	var url = o.url || gravity.state.url || null;
-	var dataType = o.dataType || 'html';
-	var data = o.data || null;
+	var o = o || {
+		url: gravity.state.url || null,
+		dataType: 'html',
+		data: null,
+		callback: gravity.compile
+	}
+
+	o.callback = o.callback || gravity.compile;
 
 	gravity.log({
-		message: 'Loading [' + gravity.state.url + ']',
+		message: 'LOAD [' + gravity.state.url + ']',
 		type: 'info'
 	})
 
-	if (gravity.state.url.indexOf('.html') > -1 || dataType == 'html') {
-		url = 'views/' + gravity.state.url;
-		if (url.indexOf('.html') === -1) {
-			url = url + '.html';
+	if (gravity.state.url.indexOf('.html') > -1 || o.dataType == 'html') {
+		o.url = 'views/' + gravity.state.url;
+		if (o.url.indexOf('.html') === -1) {
+			o.url = o.url + '.html';
 		}
 	}
 
+	var responseData = null;
 	$.ajax({
-		url: url,
+		url: o.url,
 		type: "GET",
-		dataType: dataType,
+		dataType: o.dataType,
 		success: function(response, status, xhr) {
 			responseData = response;
 		},
 		error: function(response, status, errorThrown) {
-
+			responseData = response;
 			switch (response.status) {
 				case 400:
 					// bad request
@@ -252,37 +281,22 @@
 				case 503:
 					// service unavailable
 				default:
-					console.log(response)
-					gravity.log({
-						message: response.status,
-						type: 'error'
-					})
-					gravity.state.reset();
-					gravity.state.url = 'system/error.html';
-					gravity.load({
-						data: responseData
-					});
+					gravity.error(responseData);
+					break;
 			}
-
 			return false;
 		}
 	}).done(function() {
-		gravity.compile(responseData)
+		o.callback(responseData);
 	});
 
-	// } else {
-	// 	gravity.log({
-	// 		message: 'No resource defined to load, or no callback provided.',
-	// 		type: 'error'
-	// 	});
-	// }
 }
 
 /*  -----------------------------------------
 
-		log.js
+	log.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 
 ;gravity.log = function (o) {
 	/* o = {message:'',type:''} */
@@ -300,18 +314,18 @@
 
 	// valid types: error, log, warn, info
 	console[log.type](log.message);
-	
+
 };
 /*  -----------------------------------------
 
-		processor.js
+	processor.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 
 ;gravity.process = function () {
 
 	gravity.log({
-		message: 'Processing...',
+		message: 'PROCESS',
 		type: 'info'
 	})
 
@@ -319,9 +333,9 @@
 
 /*  -----------------------------------------
 
-		renderer.js
+	renderer.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;gravity.render = function (o) {
 
 	/*
@@ -329,27 +343,23 @@
 	*/
 
 	gravity.log({
-		message: 'Rendering...',
+		message: 'RENDER',
 		type: 'info'
-	})
-
-	if (typeof o === 'string') {
-		$('div#gravity-stage').html(o);
-	}
+	});
 
 }
 
 /*  -----------------------------------------
 
-		router.js
+	router.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 
 ;gravity.route = {
 	init: function () {
 
 		gravity.log({
-			message: 'Initializing router.',
+			message: 'ROUTE',
 			type: 'info'
 		})
 
@@ -372,8 +382,6 @@
 				});
 
 				if (/^[a-z0-9]+$/i.test(route[0]) && gravity.app.hasOwnProperty([route[0]])) {
-
-					console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
 
 					// set up gravity state
 					gravity.state.module = route[0];
@@ -404,11 +412,10 @@
 
 			} else {
 				gravity.log({
-					message: 'No routes specified, loading default route.',
+					message: 'No routes specified, loading default ['+gravity.app.index+'] instead',
 					type: 'log'
 				});
 				gravity.state.url = gravity.app.index;
-				gravity.log('Routing to "'+gravity.app.index+'"');
 				gravity.core();
 			}
 		});

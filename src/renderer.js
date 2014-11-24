@@ -1,8 +1,8 @@
 /*  -----------------------------------------
 
-		renderer.js
+	renderer.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;gravity.render = function (o) {
 
 	/*
@@ -10,12 +10,8 @@
 	*/
 
 	gravity.log({
-		message: 'Rendering...',
+		message: 'RENDER',
 		type: 'info'
-	})
-
-	if (typeof o === 'string') {
-		$('div#gravity-stage').html(o);
-	}
+	});
 
 }

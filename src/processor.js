@@ -1,13 +1,13 @@
 /*  -----------------------------------------
 
-		processor.js
+	processor.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 
 ;gravity.process = function () {
 
 	gravity.log({
-		message: 'Processing...',
+		message: 'PROCESS',
 		type: 'info'
 	})
 

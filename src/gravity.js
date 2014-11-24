@@ -1,11 +1,9 @@
 /*  -----------------------------------------
 
-		Gravity.js
+	Gravity.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;(function(gravity, $, undefined) {
-
-
 
 	// set mustache tags & do not cache templates by default
 	EJSpeed.config({ type: '{{', cache: false });
@@ -30,7 +28,7 @@
 	gravity.init = function () {
 
 		gravity.log({
-			message: 'Booting Gravity.',
+			message: 'BOOT',
 			type: 'info'
 		})
 

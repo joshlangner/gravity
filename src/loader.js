@@ -1,41 +1,43 @@
 /*  -----------------------------------------
 
-		loader.js
-		wraps jQuery AJAX function with
-		promise-focused API
+	loader.js
+	wraps jQuery AJAX function with
+	promise-focused API
 
-		// currently used only for JSON calls
-		// EJSpeed handles template loading & compiling
-
-	-------------------------------------------*/
+-------------------------------------------*/
 ;gravity.load = function (o) {
 
-	var responseData = null;
-	var url = o.url || gravity.state.url || null;
-	var dataType = o.dataType || 'html';
-	var data = o.data || null;
+	var o = o || {
+		url: gravity.state.url || null,
+		dataType: 'html',
+		data: null,
+		callback: gravity.compile
+	}
+
+	o.callback = o.callback || gravity.compile;
 
 	gravity.log({
-		message: 'Loading [' + gravity.state.url + ']',
+		message: 'LOAD [' + gravity.state.url + ']',
 		type: 'info'
 	})
 
-	if (gravity.state.url.indexOf('.html') > -1 || dataType == 'html') {
-		url = 'views/' + gravity.state.url;
-		if (url.indexOf('.html') === -1) {
-			url = url + '.html';
+	if (gravity.state.url.indexOf('.html') > -1 || o.dataType == 'html') {
+		o.url = 'views/' + gravity.state.url;
+		if (o.url.indexOf('.html') === -1) {
+			o.url = o.url + '.html';
 		}
 	}
 
+	var responseData = null;
 	$.ajax({
-		url: url,
+		url: o.url,
 		type: "GET",
-		dataType: dataType,
+		dataType: o.dataType,
 		success: function(response, status, xhr) {
 			responseData = response;
 		},
 		error: function(response, status, errorThrown) {
-
+			responseData = response;
 			switch (response.status) {
 				case 400:
 					// bad request
@@ -56,28 +58,13 @@
 				case 503:
 					// service unavailable
 				default:
-					console.log(response)
-					gravity.log({
-						message: response.status,
-						type: 'error'
-					})
-					gravity.state.reset();
-					gravity.state.url = 'system/error.html';
-					gravity.load({
-						data: responseData
-					});
+					gravity.error(responseData);
+					break;
 			}
-
 			return false;
 		}
 	}).done(function() {
-		gravity.compile(responseData)
+		o.callback(responseData);
 	});
 
-	// } else {
-	// 	gravity.log({
-	// 		message: 'No resource defined to load, or no callback provided.',
-	// 		type: 'error'
-	// 	});
-	// }
 }

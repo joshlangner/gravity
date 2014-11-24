@@ -1,18 +1,19 @@
 /*  -----------------------------------------
 
-		dom.js
-		Attach HTML to the DOM, limit binding
-		assignments to post-render
+	dom.js
+	Attach HTML to the DOM, limit binding
+	assignments to post-render
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;gravity.dom = function (o) {
 
 	gravity.log({
-		message: 'Rendering to DOM.',
+		message: 'DOM',
 		type: 'info'
 	})
 
-	/* o = {
+	/*
+		o = {
 			target: '.element' or '#element',
 			compiledHtml: '<compiledHtml></compiledHtml>'
 		}
@@ -20,6 +21,8 @@
 	if (o.target && typeof o.compiledHtml === 'string') {
 		$(o.target).html(o.compiledHtml);
 	}
+
+	gravity.render();
 
 }
 

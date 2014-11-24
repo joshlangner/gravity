@@ -1,14 +1,14 @@
 /*  -----------------------------------------
 
-		fn.js
+	fn.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 
 ;gravity.fn = {
 
-	/* 
+	/*
 		gravity.fn.contains
-		Checks an array to see if it contains a value. 
+		Checks an array to see if it contains a value.
 		Minimum of 2x faster, up to 20x faster than native Array.indexOf
 	*/
 	contains: function (a, v) {
@@ -19,5 +19,5 @@
 		}
 		return false;
 	}
-	
+
 };

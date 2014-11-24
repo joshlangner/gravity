@@ -1,9 +1,9 @@
 /*  -----------------------------------------
 
-		system.js
-		required modules for gravity.
+	system.js
+	required modules for gravity.
 
-	-------------------------------------------*/
+-------------------------------------------*/
 ;docs.system = {
 
 	// each module should have an index / default handler

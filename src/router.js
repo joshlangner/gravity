@@ -1,14 +1,14 @@
 /*  -----------------------------------------
 
-		router.js
+	router.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 
 ;gravity.route = {
 	init: function () {
 
 		gravity.log({
-			message: 'Initializing router.',
+			message: 'ROUTE',
 			type: 'info'
 		})
 
@@ -31,8 +31,6 @@
 				});
 
 				if (/^[a-z0-9]+$/i.test(route[0]) && gravity.app.hasOwnProperty([route[0]])) {
-
-					console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
 
 					// set up gravity state
 					gravity.state.module = route[0];
@@ -63,11 +61,10 @@
 
 			} else {
 				gravity.log({
-					message: 'No routes specified, loading default route.',
+					message: 'No routes specified, loading default ['+gravity.app.index+'] instead',
 					type: 'log'
 				});
 				gravity.state.url = gravity.app.index;
-				gravity.log('Routing to "'+gravity.app.index+'"');
 				gravity.core();
 			}
 		});

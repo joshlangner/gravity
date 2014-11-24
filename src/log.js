@@ -1,8 +1,8 @@
 /*  -----------------------------------------
 
-		log.js
+	log.js
 
-	-------------------------------------------*/
+-------------------------------------------*/
 
 ;gravity.log = function (o) {
 	/* o = {message:'',type:''} */
@@ -20,5 +20,5 @@
 
 	// valid types: error, log, warn, info
 	console[log.type](log.message);
-	
+
 };
