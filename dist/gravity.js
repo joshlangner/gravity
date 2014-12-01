@@ -11,14 +11,14 @@
 	gravity.state = {
 		url: null,
 		module: null,
-		id: null,
 		action: null,
+		id: null,
 		params: null,
 		reset: function() {
 			gravity.state.url = null;
 			gravity.state.module = null;
-			gravity.state.id = null;
 			gravity.state.action = null;
+			gravity.state.id = null;
 			gravity.state.params = null;
 		}
 	}
@@ -103,24 +103,24 @@
 			dataType: 'html'
 		});
 
-	} else {
-		// run the index function on the module.
-		// The index module will pick up sub-params based on state object.
+	} else if (gravity.app[gravity.state.module]) {
 
-		if (gravity.state.action && gravity.app[gravity.state.module][gravity.state.id]) {
+		// Only check one level down (action) to attempt to direct to action.
+		// Convention assumes most apps will have module/action/id
+		// Anything deeper will hand off to action to delegate additional module/action/subaction/subsubaction/id
+		if (gravity.state.action && gravity.app[gravity.state.module][gravity.state.action]) {
 
 			gravity.log({
-				message: 'Running action on a module.',
+				message: '['+gravity.state.module+'.'+gravity.state.action+']',
 				type: 'info'
 			});
 
-			// assume an id exists and run the action
-			gravity.app[gravity.state.module][gravity.state.action];
+			gravity.app[gravity.state.module][gravity.state.action]();
 
 		} else {
 
 			gravity.log({
-				message: 'Running module index.',
+				message: '['+gravity.state.module+'.index]',
 				type: 'info'
 			});
 
@@ -128,15 +128,6 @@
 			gravity.app[gravity.state.module].index();
 		}
 	}
-
-	// gravity.load(null, function(page) {
-	// 	gravity.render(page);
-	// });
-
-	// gravity.load('views/'+route[0]+'.html', function(page) {
-	// 	gravity.render(page);
-	// });
-
 }
 /*  -----------------------------------------
 
@@ -224,38 +215,47 @@
 /*  -----------------------------------------
 
 	loader.js
-	wraps jQuery AJAX function with
-	promise-focused API
+	wraps jQuery AJAX function, see jQuery API
+	for reference
 
 -------------------------------------------*/
 ;gravity.load = function (o) {
 
-	var o = o || {
-		url: gravity.state.url || null,
-		dataType: 'html',
-		data: null,
-		callback: gravity.compile
-	}
+	var url;
+	var callback;
 
-	o.callback = o.callback || gravity.compile;
+	if (!o) {
+		// nothing provided.
+	} else if (typeof o === 'string') {
+		// assume a url, set default types
+		url = o;
+		callback = function (r) {
+			console.log(r)
+		};
+	} else {
+		// assume o specifies at least a url and callback
+		url = o.url;
+		callback = o.callback;
+	}
 
 	gravity.log({
 		message: 'LOAD [' + gravity.state.url + ']',
 		type: 'info'
-	})
+	});
 
-	if (gravity.state.url.indexOf('.html') > -1 || o.dataType == 'html') {
-		o.url = 'views/' + gravity.state.url;
-		if (o.url.indexOf('.html') === -1) {
-			o.url = o.url + '.html';
-		}
-	}
+	// if (gravity.state.url.indexOf('.html') > -1 || o.dataType == 'html') {
+
+	// 	// TODO: Refactor ------------------------------------------
+	// 	o.url = 'views/' + gravity.state.url;
+	// 	if (o.url.indexOf('.html') === -1) {
+	// 		o.url = o.url + '.html';
+	// 	}
+
+	// }
 
 	var responseData = null;
 	$.ajax({
-		url: o.url,
-		type: "GET",
-		dataType: o.dataType,
+		url: url,
 		success: function(response, status, xhr) {
 			responseData = response;
 		},
@@ -287,8 +287,42 @@
 			return false;
 		}
 	}).done(function() {
-		o.callback(responseData);
+		callback(responseData)
 	});
+
+
+	/*
+		getMultiple() Loads multiple Javascript files in a specific order, then executes a callback on completion.
+
+		Example:
+		getMultiple([
+			'scripts/script-a.js',
+			'scripts/script-b.js'
+		], function() {
+			alert('done!')
+		})
+
+	*/
+	function getMultiple (o, callback) {
+		var i = 0;
+		check();
+		function check() {
+			$.when(getScript(o[i])).then(function() {
+				if (i < o.length-1) {
+					poll()
+				} else {
+					callback();
+				}
+			})
+		}
+		function poll() {
+			i++;
+			check();
+		}
+		function getScript(s) {
+			return $.getScript(s);
+		}
+	}
 
 }
 
@@ -385,8 +419,8 @@
 
 					// set up gravity state
 					gravity.state.module = route[0];
-					gravity.state.id = route[1] || null;
-					gravity.state.action = route[2] || null;
+					gravity.state.action = route[1] || null;
+					gravity.state.id = route[2] || null;
 					gravity.state.params = route[3] || null;
 
 					gravity.core();

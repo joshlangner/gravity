@@ -34,8 +34,8 @@
 
 					// set up gravity state
 					gravity.state.module = route[0];
-					gravity.state.id = route[1] || null;
-					gravity.state.action = route[2] || null;
+					gravity.state.action = route[1] || null;
+					gravity.state.id = route[2] || null;
 					gravity.state.params = route[3] || null;
 
 					gravity.core();

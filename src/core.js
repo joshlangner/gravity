@@ -19,24 +19,24 @@
 			dataType: 'html'
 		});
 
-	} else {
-		// run the index function on the module.
-		// The index module will pick up sub-params based on state object.
+	} else if (gravity.app[gravity.state.module]) {
 
-		if (gravity.state.action && gravity.app[gravity.state.module][gravity.state.id]) {
+		// Only check one level down (action) to attempt to direct to action.
+		// Convention assumes most apps will have module/action/id
+		// Anything deeper will hand off to action to delegate additional module/action/subaction/subsubaction/id
+		if (gravity.state.action && gravity.app[gravity.state.module][gravity.state.action]) {
 
 			gravity.log({
-				message: 'Running action on a module.',
+				message: '['+gravity.state.module+'.'+gravity.state.action+']',
 				type: 'info'
 			});
 
-			// assume an id exists and run the action
-			gravity.app[gravity.state.module][gravity.state.action];
+			gravity.app[gravity.state.module][gravity.state.action]();
 
 		} else {
 
 			gravity.log({
-				message: 'Running module index.',
+				message: '['+gravity.state.module+'.index]',
 				type: 'info'
 			});
 
@@ -44,13 +44,4 @@
 			gravity.app[gravity.state.module].index();
 		}
 	}
-
-	// gravity.load(null, function(page) {
-	// 	gravity.render(page);
-	// });
-
-	// gravity.load('views/'+route[0]+'.html', function(page) {
-	// 	gravity.render(page);
-	// });
-
 }

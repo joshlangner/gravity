@@ -272,7 +272,7 @@ module.exports = function (grunt) {
 						src: [
 							'index.html',
 							'views/**',
-							'*.{ico,png,txt,js}'
+							'*.{ico,png,txt,js,json}'
 						]
 					}
 				]

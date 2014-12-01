@@ -11,14 +11,14 @@
 	gravity.state = {
 		url: null,
 		module: null,
-		id: null,
 		action: null,
+		id: null,
 		params: null,
 		reset: function() {
 			gravity.state.url = null;
 			gravity.state.module = null;
-			gravity.state.id = null;
 			gravity.state.action = null;
+			gravity.state.id = null;
 			gravity.state.params = null;
 		}
 	}

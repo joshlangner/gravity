@@ -1,38 +1,47 @@
 /*  -----------------------------------------
 
 	loader.js
-	wraps jQuery AJAX function with
-	promise-focused API
+	wraps jQuery AJAX function, see jQuery API
+	for reference
 
 -------------------------------------------*/
 ;gravity.load = function (o) {
 
-	var o = o || {
-		url: gravity.state.url || null,
-		dataType: 'html',
-		data: null,
-		callback: gravity.compile
-	}
+	var url;
+	var callback;
 
-	o.callback = o.callback || gravity.compile;
+	if (!o) {
+		// nothing provided.
+	} else if (typeof o === 'string') {
+		// assume a url, set default types
+		url = o;
+		callback = function (r) {
+			console.log(r)
+		};
+	} else {
+		// assume o specifies at least a url and callback
+		url = o.url;
+		callback = o.callback;
+	}
 
 	gravity.log({
 		message: 'LOAD [' + gravity.state.url + ']',
 		type: 'info'
-	})
+	});
 
-	if (gravity.state.url.indexOf('.html') > -1 || o.dataType == 'html') {
-		o.url = 'views/' + gravity.state.url;
-		if (o.url.indexOf('.html') === -1) {
-			o.url = o.url + '.html';
-		}
-	}
+	// if (gravity.state.url.indexOf('.html') > -1 || o.dataType == 'html') {
+
+	// 	// TODO: Refactor ------------------------------------------
+	// 	o.url = 'views/' + gravity.state.url;
+	// 	if (o.url.indexOf('.html') === -1) {
+	// 		o.url = o.url + '.html';
+	// 	}
+
+	// }
 
 	var responseData = null;
 	$.ajax({
-		url: o.url,
-		type: "GET",
-		dataType: o.dataType,
+		url: url,
 		success: function(response, status, xhr) {
 			responseData = response;
 		},
@@ -64,7 +73,41 @@
 			return false;
 		}
 	}).done(function() {
-		o.callback(responseData);
+		callback(responseData)
 	});
+
+
+	/*
+		getMultiple() Loads multiple Javascript files in a specific order, then executes a callback on completion.
+
+		Example:
+		getMultiple([
+			'scripts/script-a.js',
+			'scripts/script-b.js'
+		], function() {
+			alert('done!')
+		})
+
+	*/
+	function getMultiple (o, callback) {
+		var i = 0;
+		check();
+		function check() {
+			$.when(getScript(o[i])).then(function() {
+				if (i < o.length-1) {
+					poll()
+				} else {
+					callback();
+				}
+			})
+		}
+		function poll() {
+			i++;
+			check();
+		}
+		function getScript(s) {
+			return $.getScript(s);
+		}
+	}
 
 }
