@@ -11,15 +11,18 @@
 
 	ping: function () {
 
-		// option 2
-		gravity.load({
-			url: 'sample.json',
-			callback: function (r) {
-				console.log(typeof r)
-			}
-		});
+		var thePing;
 
-		gravity.load('sample.json')
+		function wo (r) {
+			thePing = r;
+			console.log(thePing);
+		}
+
+		// callback case (not ideal due to nested nature of syntax)
+		gravity.load('sample.json', wo);
+
+		// blocking case
+		// gravity.load('sample.json');
 
 		// load template(s)
 		// compile

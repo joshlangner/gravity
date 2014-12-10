@@ -219,23 +219,15 @@
 	for reference
 
 -------------------------------------------*/
-;gravity.load = function (o) {
+;gravity.load = function (url, callback, options) {
 
-	var url;
-	var callback;
+	var url = url;
+	var callback = callback;
 
-	if (!o) {
+	if (!options) {
 		// nothing provided.
-	} else if (typeof o === 'string') {
-		// assume a url, set default types
-		url = o;
-		callback = function (r) {
-			console.log(r)
-		};
-	} else {
-		// assume o specifies at least a url and callback
-		url = o.url;
-		callback = o.callback;
+	} else if (options) {
+		// set options
 	}
 
 	gravity.log({
